@@ -1,0 +1,199 @@
+﻿@{
+    Layout = null;
+}
+
+<script>
+    "use strict";
+    var COMMON = (function() {
+        function COMMON() {
+        }
+         COMMON.refreshKendoGrid = function(gridId, resetFilter) {
+            debugger
+            if (gridId !== undefined && gridId !== null && gridId.indexOf('#') < 0) {
+                gridId = $('#' + gridId);
+            }
+            resetFilter = resetFilter === undefined || resetFilter === null ? false : resetFilter;
+            var grid = $(gridId).data('kendoGrid');
+            grid.dataSource.page(1);
+            //grid.dataSource.read();//first reload data source -->
+            //grid.dataSource.read();//first reload data source -->
+            grid.refresh();//refresh current UI -->
+            if (resetFilter === true) {
+                grid.dataSource.filter({});
+            }
+
+        };
+ COMMON.confirmAlert = function(message, url, params, gridId) {
+            var confirmed = false;
+            //debugger;
+            Swal.fire({
+                title: "AreYouSure",
+                text: "Warning",
+                //type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Delete",
+                cancelButtonText: "Cancel"
+            }).then((result) => {
+              if (result.isConfirmed) {
+                        var jsonResponse = COMMON.doAjaxPostWithJSONResponse(url, params);
+                        if (jsonResponse.Deleted === true) {
+                            $.notify("DeletedSuccessful", { globalPosition: 'top center', className: 'success' });
+                            COMMON.refreshKendoGrid("#" + gridId, true);
+                        }
+                        else {
+                            $.notify("PermissionDeniedOrError", { globalPosition: 'top center', className: 'danger' });
+                        }
+                        confirmed = true;
+                    } else {
+                        Swal.fire({
+                            title: "Canceled",
+                            text: "CanceledAction",
+                            type: "error"
+                        });
+                        return false;
+                    }
+                });
+            return confirmed;
+        };
+COMMON.doAjaxPostHTMLResponse = function(url, params) {
+            var htmlResponse = null;
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: params,
+                //async: target !== undefined && target !== null ? true : false,
+                async: false,
+                success: function(response) {
+                    htmlResponse = response;
+                },
+                error: function(xhr, status, error) {
+                    COMMON.displayError(xhr.responseText, xhr.status);
+                    htmlResponse = null;
+                },
+                beforeSend: function () {
+                    displayLoader(true);
+                },
+                complete: function () {
+                    displayLoader(false);
+                }
+            });
+            return htmlResponse;
+        };
+COMMON.AlertAndRedirect= function(confirmTitle, confirmMessage, confirmType, url) {
+            var confirmed = false;
+
+            Swal.fire({
+                title: confirmTitle, //"Are you sure to delete this record?",
+                text: confirmMessage, // "Please check before deleting the record!",
+                type: confirmType, //"warning",
+                showCancelButton: false,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Ok"
+            }).then((result) => {
+              if (result.isConfirmed) {
+                    //console.log(url);
+                    window.location = url;
+                    confirmed = true;
+                } else {
+                    return false;
+                }
+            });
+            return confirmed;
+        };
+
+COMMON.doAjaxPostWithJSONResponse = function(url, params) {
+            var jsonResponse = null;
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: params,
+                async: false,
+                success: function(response) {
+                    jsonResponse = response;
+                },
+                error: function(xhr, status, error) {
+                    COMMON.displayError(xhr.responseText, xhr.status);
+                    displayLoader(false);
+                    jsonResponse = null;
+                },
+                beforeSend: function() {
+                    displayLoader(true);
+                },
+                complete: function() {
+                    displayLoader(false);
+                }
+            });
+            return jsonResponse;
+        };
+
+
+        COMMON.displayError = function(message, status) {
+            console.log("AnErroroccured" + message);
+            return false;
+        };
+
+        COMMON.is = {
+             html: function(a) {
+                var h = document.createElement('div');
+                h.innerHTML = a;
+                for (var c = h.childNodes, i = c.length; i--;) {
+                    if (c[i].nodeType == 1) return true;
+                }
+                return false;
+            },
+            json: function(a) {
+                try { return JSON.parse(a) !== this.undefined || JSON.parse(a) !== this.null } catch { return false }
+            },
+            specialcharacter: function(a) { return !(/^[A-Za-z0-9 ]+$/.test(a)); }
+        };
+
+        COMMON.showLoader = function(e){
+            $("#loadingDiv").show();
+        };
+        COMMON.hideLoader = function(e){
+            $("#loadingDiv").hide();
+        };
+        return COMMON;
+    }()); /*CLASS COMMON End*/
+
+
+    function displayLoader(isShow) {
+        if (isShow) {
+            console.log("loadingDiv.show");
+            $('#loadingDiv').show();
+            //$('div.spanner').addClass('show');
+        } else {
+            console.log("loadingDiv.hide");
+            $('#loadingDiv').hide();
+            //$('div.spanner').removeClass('show');
+        }
+    }
+    
+    $(document).ajaxComplete(function () {
+             $('#loadingDiv').hide();
+        });
+        $(document).ajaxStart(function () {
+           $( "#loadingDiv" ).show();
+        });
+    $(document).ajaxError(function (event, jqxhr, settings, exception) {
+        $('#loadingDiv').hide();
+        if (jqxhr.status == 401 || jqxhr.status == 302) {
+            window.location.href = '@Url.Action("Login", "Account", new { area = string.Empty })';
+        }
+    });
+    $(window).on('shown.bs.modal', function() { 
+      $('#loadingDiv').css({ 'z-index': '2051' });
+    });
+    $(window).on('hidden.bs.modal', function() { 
+      $('#loadingDiv').css({ 'z-index': '99' });
+    });
+    $(function(){
+        $("#loadingDiv").hide();
+    });
+    $.fn.clearErrors = function () {
+        $(this).each(function() {
+            $(this).find(".field-validation-valid").empty();
+        });
+    };
+</script>

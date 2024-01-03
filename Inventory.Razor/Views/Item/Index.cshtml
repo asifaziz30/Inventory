@@ -1,0 +1,174 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var controllerName = this.ViewContext.RouteData.Values["controller"].ToString();
+    ViewData["Title"] = "Item";
+}
+<div class="row">
+    <div class="col-lg-12 inline-flex ">
+        <div class="page-title">
+            <h1 class="title-h1">
+                Item
+             </h1>
+            <ul class="breadcrumb">
+                <li>
+                    <a asp-action="Index" asp-controller="Home"><span class="mdi mdi-home"></span></a>
+                </li>
+                <li>
+                    <span class="breadcrumb-item "><span class="mdi mdi-chevron-right"></span></span>
+                </li>
+                <li>
+                    <span class="breadcrumb-item ">Item</span>
+                </li>
+            </ul>
+        </div>
+        <div class="header-btn-area flex-1 text-right">
+            <a target="_blank" href='@Url.Action("Create", controllerName)' class="btn create-new-btn"><span class="mdi mdi-plus"></span>Create</a>
+        </div>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-lg-12">
+
+        <div class="row mb-20">
+
+            
+            <div class="col-lg-4">
+                <div class="input-group filter-input">
+                    <input type="text" id="Name" class="form-control" placeholder="Enter Name" />
+                </div>
+            </div>
+            
+            <div class="col-md-2 pl-0">
+                <div class="text-right">
+                    <button type="button" class="new-small-btn ml-0" id="btnSearch">
+                        <span class="b-title">Search</span>
+                        <span class="mdi mdi-text-box-search-outline"></span>
+                    </button>
+                    <button type="reset" class="new-small-btn" id="resetSearch">
+                        <span class="b-title">Reset</span>
+                        <span class="mdi mdi-reload"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="dt-basic-example_wrapper" class="dataTables_wrapper dt-bootstrap4">
+
+            <div class=" new-grid">
+                @(Html.Kendo().Grid<ItemResponse>()
+                    .Name(controllerName + "Grid")
+                    .Columns(columns =>
+                    {
+                        columns.Bound(p => p.Id).Title("SR").Filterable(false).Width(50);
+                        columns.Bound(p => p.Id).Title("Action").Filterable(false).Width(100);
+                        columns.Bound(p => p.Name).Title("Name").Filterable(false);
+                        columns.Bound(p => p.Price).Title("Price").Format("{0:n2}").Filterable(false);
+                        columns.Bound(p => p.Quantity).Title("Quantity").Filterable(false);
+                        columns.Bound(p => p.Description).Title("Description").Filterable(false);
+                    })
+                    .Pageable(pageable => pageable
+                    .PageSizes(@ViewBag.pagesize))
+                    .Navigatable()
+                    .Filterable()
+                    .Sortable()
+                    .Scrollable(d => d.Height("auto"))
+                    .Events(events => events.Sort("onSort").DataBound("onDataBound"))
+                    .DataSource(dataSource => dataSource
+                    .Ajax()
+                    .PageSize(10)
+                    .Events(events => events.Error("error_handler"))
+                    .Read(action => action.Action("Read", controllerName).Data("filterGrid"))
+                    )
+                    )
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+     <script type="text/javascript">
+
+         $(document).ready(function () {
+             debugger
+             var resp = '@TempData["resp"].ToString()';
+             if (resp == "1") {
+                 $.notify("Item Created Successful", { globalPosition: 'top center', className: 'success' });
+             }
+             if (resp == "2") {
+                 $.notify("Item Updated Successful", { globalPosition: 'top center', className: 'success' });
+             }
+         });
+        function filterGrid() {
+            debugger
+            return {
+                code: $('#Code').val(),
+                name: $('#Name').val()
+            };
+        }
+        
+        
+
+        $("#resetSearch").click(function (e) {
+            $('#Name').val('');
+            $("#Code").val('');
+            COMMON.refreshKendoGrid('#@(controllerName)Grid');
+        });
+        $('#btnSearch').click(function (e) {
+            //console.log("hhi")
+            debugger
+            COMMON.refreshKendoGrid('#@(controllerName)Grid');
+        });
+        
+        function error_handler(e) {
+            if (e.errors) {
+                var message = "Errors:\n";
+                $.each(e.errors, function (key, value) {
+                    if ('errors' in value) {
+                        $.each(value.errors, function () {
+                            message += this + "\n";
+                        });
+                    }
+                });
+                alert(message);
+            }
+        }
+        // Prevent sorting when new record without Product Name is added
+        function onSort(e) {
+            var gridData = e.sender.dataSource.data()
+            gridData.forEach(function (element) {
+                if (!element.BaseCountryName) {
+                    e.preventDefault()
+                }
+            });
+        }
+
+         function onDataBound(e) {
+             console.log("Grid data bound");
+             var grid = this;
+             e.preventDefault();
+             var gridRows = grid.tbody.find("tr");
+             var pageSize = this.dataSource.pageSize();
+             var currentPage = pageSize * (this.dataSource.page() - 1);
+             var serialNo = currentPage;
+             gridRows.each(function (e) {
+                var cell = $(this);
+                var item = grid.dataItem(cell.closest("tr"));
+                cell[0].childNodes[0].innerHTML = ++serialNo;
+                var lastNodeIndex = cell[0].childNodes.length;
+                var html = "<span class='grid-icon-btn-group'><a class='' target='_blank' href='@Url.Action("Edit", controllerName)/" + item.Id + "'><span class='i-title'>Edit</span><i class='mdi mdi-pencil-outline'></i></a>";
+                html += "<a class='remove-icon' onclick='deleteItem(" + item.Id + ")'><span class='i-title'>Delete</span><i class='mdi mdi-trash-can-outline'></i></a></span>";
+                cell[0].childNodes[1].innerHTML = html;
+             });
+
+         }
+                  
+        function deleteItem(id) {
+            debugger
+            if (id !== null && id !== undefined && id > 0) {
+                var params = { id: id };
+                COMMON.confirmAlert("", '@Url.Action("Delete", controllerName)', params, '@(controllerName)Grid');
+            }
+        }
+    </script> 
+}

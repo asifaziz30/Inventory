@@ -1,0 +1,52 @@
+﻿@using Microsoft.Extensions.Options
+@using Microsoft.AspNetCore.Builder
+@using Microsoft.AspNetCore.Localization
+@using Microsoft.AspNetCore.Mvc.Localization
+@{
+    var returnUrl = string.IsNullOrEmpty(Context.Request.Path) ? "~/" : $"~{Context.Request.Path.Value}" + (Context.Request.QueryString.HasValue ? Context.Request.QueryString.Value : "");
+    string selectedMenu = string.Empty;
+    Dictionary<string, bool> rendredMenus = new Dictionary<string, bool>();
+}
+
+<aside class="page-sidebar">
+    <nav id="js-primary-nav" class="primary-nav" role="navigation">
+        <div class="nav-filter">
+            <div class="position-relative">
+                <input type="text" id="nav_filter_input" placeholder="Filter menu" class="form-control" tabindex="0">
+                <a href="#" onclick="return false;" class="btn-primary btn-search-close js-waves-off" data-action="toggle" data-class="list-filter-active" data-target=".page-sidebar">
+                    <i class="fal fa-chevron-up"></i>
+                </a>
+            </div>
+        </div>
+        <div class="text-center bg-white border-b-gray pt-3 pb-2">
+            <a href="@Url.Action("Index", "Home")">
+                <img src="~/images/logos/GEXP-logo-web.png" class="cover img" style="width:94px" alt="logo">
+                <span class="sidebar-sub-title">Inventory</span>
+            </a>
+        </div>
+        <ul id="js-nav-menu" class="nav-menu left-menu">
+            
+            <li>
+                <a asp-action="Index" asp-controller="Item" title="Item" data-filter-tags="Item">
+                    <span class="mdi mdi-package-variant-closed mdi-25px"></span>
+                    <span class="nav-link-text" data-i18n="nav.Dashboard">Item</span>
+                </a>
+            </li>
+            
+            
+            <li class="">
+                <a asp-action="Index" asp-controller="PurchaseOrder" title="Purchase Order" data-filter-tags="Purchase Order">
+                    <span class="mdi mdi-clipboard-text-clock-outline mdi-24px"></span>
+                    <span class="nav-link-text" data-i18n="nav.Dashboard">Purchase Order</span>
+                </a>
+            </li>
+            <li>
+                <a asp-action="Index" asp-controller="SaleOrder" title="Sale Order" data-filter-tags="Sale Order">
+                    <span class="mdi mdi-card-text-outline mdi-24px"></span>
+                    <span class="nav-link-text" data-i18n="nav.Dashboard">Sale Order</span>
+                </a>
+            </li>
+        </ul>
+        <div class="filter-message js-filter-message bg-success-600"></div>
+    </nav>
+</aside>

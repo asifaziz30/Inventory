@@ -1,0 +1,394 @@
+﻿@using Inventroy.Service.Models.DTO.Response 
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var controllerName = this.ViewContext.RouteData.Values["controller"].ToString();
+    var hasEditDeleteRole = true;// User.IsInRole(AppConstants.USER_ROLES.NAME.NCC);
+    ViewData["Title"] = "Purchase Order";
+}
+<style>
+     #@(controllerName)_Grid tr td {
+        overflow: inherit;
+    }
+    .grid-icon-btn-group {
+        display: inline-flex;
+        position: relative;
+        height: 14px;
+        top: -2px;
+    }
+    .k-toolbar {
+    justify-content: flex-end !important;
+}
+
+
+        .grid-icon-btn-group a {
+            width: 24px;
+            height: 24px;
+            background: #FFFFFF;
+            border: 1px solid #E6F2FF;
+            box-shadow: 0px 4px 7px #DFEBFF;
+            border-radius: 50px;
+            text-align: center;
+            margin-right: 7px;
+            position: relative;
+        }
+
+            .grid-icon-btn-group a .i-title {
+                display: none;
+                position: absolute;
+                left: 0;
+                z-index: 1;
+                background: #3F51B5;
+                color: #fff;
+                font-size: 9px;
+                border-radius: 2px;
+                padding: 1px 3px;
+                top: -7px;
+                white-space: nowrap;
+            }
+
+            .grid-icon-btn-group a.email-icon .i-title {
+                background: #FFCC3F;
+            }
+
+            .grid-icon-btn-group a.remove-icon .i-title {
+                background: #FA896B;
+            }
+
+            .grid-icon-btn-group a:hover .i-title {
+                display: block;
+            }
+
+            .grid-icon-btn-group a .mdi {
+                font-size: 20px;
+                margin-top: 5px;
+                display: block;
+            }
+
+                .grid-icon-btn-group a .mdi.mdi-printer-pos-outline {
+                    color: #3F51B5;
+                }
+
+                .grid-icon-btn-group a .mdi.mdi-face-agent {
+                    color: #3F51B5;
+                }
+
+                .grid-icon-btn-group a .mdi.mdi-email-arrow-right-outline {
+                    color: #FFCC3F;
+                    font-size: 15px;
+                    margin-top: 5px;
+                }
+
+                .grid-icon-btn-group a .mdi.mdi-close {
+                    color: #FA896B;
+                    font-size: 15px;
+                    margin-top: 5px;
+                }
+
+            .grid-icon-btn-group a input[type=submit] {
+                padding: 5px 0px;
+                background-color: transparent;
+                color: #3F51B5 !important;
+                width: 23px;
+                margin: 0 auto;
+                border-radius: 3px;
+                border: none;
+            }
+            .k-master-row{
+            height:48px;
+            }
+</style>
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-md-10">
+                <h1 class="m-0">Purchase Order</h1>
+                 <ul class="breadcrumb">
+                <li>
+                    <a asp-action="Index" asp-controller="Home"><span class="mdi mdi-home"></span></a>
+                </li>
+                <li>
+                    <span class="breadcrumb-item "><span class="mdi mdi-chevron-right"></span></span>
+                </li>
+                <li>
+                    <span class="breadcrumb-item ">PurchaseOrder</span>
+                </li>
+            </ul>
+               @*  <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="#">@ViewsLocalizer["Home"]</a></li>
+                    <li class="breadcrumb-item active">@ViewsLocalizer["PurchaseOrder"]</li>
+                </ol> *@
+            </div><!-- /.col -->
+            <div class="col-md-2 text-right">
+                <a href="PurchaseOrder/Create" class="btn btn-primary" id="btnCreate"><i class="fa fa-plus" aria-hidden="true"></i>Create</a>
+            </div>
+        </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row form-group">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row mb-2 justify-content-md-left">
+                        <div class="col-md-1 pr-0">
+                            <span class="sort-by-title">FilterBy</span>
+                        </div>
+                        <div class="col-md-3 pl-0">
+                            <div class="input-group from-to-date width-300">
+                                <span class="mdi mdi-calendar-month-outline"></span>
+                                <input type="date" onclick="this.showPicker()" class="form-control" id="startDate" value="@DateTime.UtcNow.AddDays(-1).ToString("yyyy-MM-dd")">
+                                <span class="dash-d">-</span>
+                                <input type="date" onclick="this.showPicker()" class="form-control" id="endDate" value="@DateTime.UtcNow.ToString("yyyy-MM-dd")">
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                @* <label class="form-label">@ViewsLocalizer["PurchaseOrderNumber"]</label> *@
+                                    <input type="text"  id="PurchaseOrderNumber"  name="PurchaseOrderNumber" class="form-control" placeholder="Enter PurchaseOrder Number" />
+                                </div>
+                            </div>
+                           
+                        <div class="col-md-2 pl-0">
+                            <div class="text-right">
+                                <button type="button" class="new-small-btn ml-0" id="btnSearch">
+                                    <span class="b-title">Search</span>
+                                    <span class="mdi mdi-text-box-search-outline"></span>
+                                </button>
+                                <button type="reset" class="new-small-btn" id="resetSearch">
+                                    <span class="b-title">Reset</span>
+                                    <span class="mdi mdi-reload"></span>
+                                </button>
+                            </div>
+                        </div>
+                            
+                    </div>
+                    <div class=" new-grid">
+                        <input type="hidden" id="UserHasEditDeleteRole" value="@hasEditDeleteRole.ToString()" />
+                        @(Html.Kendo().Grid<PurchaseOrderResponse>()
+                            .Name(controllerName + "Grid")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(p => p.Id).Title("SR").Filterable(false).Width(50);
+                                columns.Bound(p => p.Id).Title("Action").Filterable(false).Visible(hasEditDeleteRole).Width(300);
+                                columns.Bound(p => p.PurchaseOrderNumber).Title("PurchaseOrderNumber").Filterable(false);
+                                columns.Bound(p => p.PurchaseOrderDate).Title("PurchaseOrderDate").Format("{0:dd-MM-yyyy}").Filterable(false);
+                                columns.Bound(p => p.TotalItems).Title("Items").Filterable(false);
+                                //columns.Bound(p => p.StatusId).Title(ViewsLocalizer["Status"]).Filterable(false);
+                                //columns.Bound(p => p.StatusId).Title("ReceiveOrder").Filterable(false).HtmlAttributes(new { @class = "text-center" }).HeaderHtmlAttributes(new { @class = "text-center" });
+
+                                //columns.Bound(p => p.CanDelete).Title(ViewsLocalizer["CanDelete"]).Filterable(false).Visible(false);
+                            })
+                                .Pageable()
+                            
+                            .Navigatable()
+                            .Filterable()
+                            .Sortable()
+                            .ClientDetailTemplateId("purchase_order_items")
+                            .Scrollable(d => d.Height("auto"))
+                            .Events(events => events.Sort("onSort").DataBound("onDataBound"))
+                            .DataSource(dataSource => dataSource
+                            .Ajax()
+                            .PageSize(10)
+                            .Events(events => events.Error("error_handler"))
+                                .Model(model =>
+                                {
+                                    model.Id(p => p.Id);
+                                    model.Field(p => p.Id).Editable(false);
+                                })
+                            .Read(action => action.Action("Read", controllerName).Data("filterGrid"))
+                            )
+                            )
+                            <script id="purchase_order_items" type="text/kendo-tmpl">
+                                <div><h5 class="text-uppercase">Item_@("#=PurchaseOrderNumber#")</h5></div>
+                                @(
+                                        Html.Kendo().Grid<PurchaseOrderItemRequest>().Name(controllerName + "_Items_#=Id#").Columns(columns =>
+                                        {
+                                            columns.Bound(o => o.ItemId).Title("SerialNo").Width(150).Filterable(false);
+                                            columns.Bound(o => o.Name).Title("Name").Width(150).Filterable(false);
+                                            columns.Bound(o => o.Price).Title("Price").Width(170).Filterable(false);
+                                            columns.Bound(o => o.Quantity).Title("Quantity").Width(150).Filterable(false);
+                                        })
+                                        
+                                        //.Filterable(filterable => filterable.Extra(false))
+                                        .Events(events => events.DataBound("onItemDataBound"))
+                                        .Scrollable(d => d.Height("auto"))
+                                        .HtmlAttributes(new
+                                        {
+                                            style = "width:100%;"
+                                        })
+                                            .DataSource(dataSource => dataSource.Ajax().PageSize(5).Read("ReadPurchaseOrderItems", controllerName, new
+                                        {
+                                            purchaseOrderId = "#=Id#"
+                                        }))
+                                        .Sortable().ToClientTemplate()
+                                    )
+                            </script>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+</section>
+@section Scripts{
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            $('#formexportremittance').parent().css("float", "right");
+            $(".exportcsvRemittance").click(function () {
+                var grid = $("#@(controllerName)Grid").data("kendoGrid");
+                var options = {
+                    purchaseOrderNumber: $('#PurchaseOrderNumber').val(),
+                    startDate: $('#startDate').val(),
+                    endDate: $('#endDate').val()
+                }
+                $('#formexportremittance input[type="hidden"]').remove();
+                addOptionsToForm(options, $('#formexportremittance'), []);
+                $('#form input[type="hidden"]').remove();
+                addOptionsToForm(options, $('#form'), []);
+            });
+        });
+
+        //var resp = 'TempData["resp"].ToString()';
+        //if (resp !== "") {
+        //    $.notify("ViewsHTMLLocalizer["PurchaseOrder"]" + "# " + resp + "ViewsHTMLLocalizer["CreatedSuccessful"]", { globalPosition: 'top center', className: 'success' });
+        //}
+        function filterGrid() {
+            debugger
+            return {
+                
+                purchaseOrderNumber: $('#PurchaseOrderNumber').val(),
+                startDate: $('#startDate').val(),
+                endDate: $('#endDate').val()
+            };
+        }         
+
+        $("#resetSearch").click(function (e) {
+            debugger
+            $('#PurchaseOrderNumber').val("");
+             var myDate = new Date();
+            var stdate = myDate.getFullYear() + '-' + ("0" + (myDate.getMonth() + 1)).slice(-2) + '-' + ('0' + (myDate.getDate() - 1)).slice(-2);
+            $("#startDate").val(stdate);
+            var endate = myDate.getFullYear() + '-' + ("0" + (myDate.getMonth() + 1)).slice(-2) + '-' + ('0' + myDate.getDate()).slice(-2);
+            $("#endDate").val(endate);
+            COMMON.refreshKendoGrid('#@(controllerName)Grid');
+        });
+        $('#btnSearch').click(function (e) {
+            //console.log("hhi")
+            debugger
+            COMMON.refreshKendoGrid('#@(controllerName)Grid');
+        });
+        
+        function error_handler(e) {
+            if (e.errors) {
+                var message = "Errors:\n";
+                $.each(e.errors, function (key, value) {
+                    if ('errors' in value) {
+                        $.each(value.errors, function () {
+                            message += this + "\n";
+                        });
+                    }
+                });
+                alert(message);
+            }
+        }
+        // Prevent sorting when new record without Product Name is added
+        function onSort(e) {
+            var gridData = e.sender.dataSource.data()
+            gridData.forEach(function (element) {
+                if (!element.BaseCountryName) {
+                    e.preventDefault()
+                }
+            });
+        }
+
+       
+        function onDataBound(e) {
+            debugger
+            console.log("Grid data bound");
+            var grid = this;
+            e.preventDefault();
+            var gridRows = grid.tbody.find("tr");
+             var pageSize = this.dataSource.pageSize();
+            var currentPage = pageSize * (this.dataSource.page() - 1);
+            var serialNo = currentPage;
+            gridRows.each(function (e) {
+                var cell = $(this);
+                var item = grid.dataItem(cell.closest("tr"));
+                var lastNodeIndex = cell[0].childNodes.length;
+                cell[0].childNodes[1].innerHTML = ++serialNo;
+                debugger
+                if (item.StatusId == 19 ) 
+                {
+                    var btnRecieve = '<span class="badge badge-info badge-pill p-2" style="margin-left:10px; font-size:14px !important">Received</span>';
+                    cell[0].childNodes[2].innerHTML = btnRecieve
+                }
+                else {
+                    var btnRecieve = '<a type="submit"  id="btnReceiveOrder" onClick="receivePurChaseOrder(\'' + item.PurchaseOrderNumber + '\' ,' + item.Id + ')" class="k-link" style="margin-left:10px; text-align:right;font-weight:bold; color: #008CBA;"><i class="fa fa-plus" style="margin-right: 3px;"></i>ReceiveOrder</a> ';
+
+                    var html = btnRecieve+"<span class='grid-icon-btn-group'>";
+                    html += "<a class='remove-icon' onclick='deleteItem(" + item.Id + ")'><i class='mdi mdi-trash-can-outline'></i></a></span>";
+                    cell[0].childNodes[2].innerHTML = html;
+                    //var btnRecieve = '<a type="submit"  id="btnReceiveOrder" onClick="receivePurChaseOrder(\'' + item.PurchaseOrderNumber + '\' ,' + item.Id + ')" class="k-link" style="margin-left:10px; text-align:right;font-weight:bold; color: #008CBA;"><i class="fa fa-plus" style="margin-right: 3px;"></i>ReceiveOrder</a> ';
+                   // cell[0].childNodes[6].innerHTML = btnRecieve
+
+                }
+
+                
+                                });
+        }
+        function receivePurChaseOrder(purchaseOrderNumber, purchaseOrderId) { 
+            debugger
+            Swal.fire({
+                title: "Received" + " " + purchaseOrderNumber, //"Are you sure to delete this record?",
+                text: "AreYouSureReceivePO", // "Please check before deleting the record!",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "Yes",
+                cancelButtonText: "No"
+            }).then((result) => {
+              if (result.isConfirmed) {
+                var params = {
+                    purchaseOrderId: purchaseOrderId
+                    };
+                    var jsonResponse = COMMON.doAjaxPostWithJSONResponse('@Url.Action("ReceivePurChaseOrder", controllerName)', params);
+                    if (jsonResponse == true)
+                    {
+                         $.notify("Purchase Order" + "# " + purchaseOrderNumber + "Received Successful", { globalPosition: 'top center', className: 'success' });
+                        COMMON.refreshKendoGrid('#@(controllerName)Grid');
+                    }
+                   else
+                        $.notify("PurchaseOrder" + "# " + purchaseOrderNumber + "Failed", { globalPosition: 'top center', className: 'info' });
+                
+                 } 
+                else {
+                        $.notify("OperationCancelled" , { globalPosition: 'top center', className: 'info' });
+                    return false;
+                }
+            });
+        }
+        function onItemDataBound(e) {
+            var grid = this;
+            e.preventDefault();
+            var gridRows = grid.tbody.find("tr");
+            var i=1
+            gridRows.each(function (e) {
+                var cell = $(this);
+                var item = grid.dataItem(cell.closest("tr"));
+                cell[0].childNodes[0].innerHTML = '<a class="" style="text-decoration:none !important;">'+i+++'</a>';
+            });
+        }
+        function deleteItem(id) {
+            debugger
+            if (id !== null && id !== undefined && id > 0) {
+                var params = { id: id };
+                COMMON.confirmAlert("", '@Url.Action("Delete", controllerName)', params, '@(controllerName)Grid');
+            }
+        }
+    </script>
+}

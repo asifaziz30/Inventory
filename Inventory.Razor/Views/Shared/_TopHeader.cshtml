@@ -1,0 +1,37 @@
+﻿@using Microsoft.Extensions.Options
+@using Microsoft.AspNetCore.Builder
+@using Microsoft.AspNetCore.Localization
+@using Microsoft.AspNetCore.Mvc.Localization
+@{
+     
+    var returnUrl = string.IsNullOrEmpty(Context.Request.Path) ? "~/" : $"~{Context.Request.Path.Value}" + (Context.Request.QueryString.HasValue ? Context.Request.QueryString.Value : "");
+}
+<header class="page-header" role="banner">
+    <!-- we need this logo when user switches to nav-function-top -->
+    <div class="page-logo">
+        <a href="#" class="page-logo-link press-scale-down d-flex align-items-center position-relative" data-toggle="modal" data-target="#modal-shortcut">
+            <img src="~/images/logo.png" alt="No Image" aria-roledescription="logo">
+            <span class="page-logo-text mr-1">Inventory</span>
+            <span class="position-absolute text-white opacity-50 small pos-top pos-right mr-2 mt-n2"></span>
+            <i class="fal fa-angle-down d-inline-block ml-1 fs-lg color-primary-300"></i>
+        </a>
+    </div>
+   
+   
+    <div class="ml-auto d-flex">
+        <!-- activate app search icon (mobile) -->
+        <div class="hidden-sm-up">
+            <a href="#" class="header-icon" data-action="toggle" data-toggle="tooltip" data-class="mobile-search-on" data-focus="search-field" title="Search">
+                <i class="fal fa-search"></i>
+            </a>
+        </div>
+        
+
+    </div>
+</header>
+
+<script type="text/javascript">
+    
+    
+    
+</script>

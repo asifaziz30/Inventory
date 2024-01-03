@@ -1,0 +1,106 @@
+﻿@model CreateItemRequest
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Create Item";
+}
+<div class="row">
+    <div class="col-lg-12 inline-flex ">
+        <div class="page-title">
+            <h1 class="title-h1">
+                Item
+            </h1>
+
+            <ul class="breadcrumb">
+                <li>
+                    <a asp-action="Index" asp-controller="Home"><span class="mdi mdi-home"></span></a>
+                </li>
+                <li>
+                    <span class="breadcrumb-item " style="float:left !important;"><a asp-action="Index" asp-controller="Item">Item</a></span><span class="mdi mdi-chevron-right pl-2" style="float:left !important;"></span>
+                </li>
+                <li>
+                    <span class="breadcrumb-item ">Create</span>
+                </li>
+            </ul>
+        </div>
+        <div class="header-btn-area flex-1 text-right">
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="white-box new-form-design">
+            <!-- left column -->
+            <div class="panel-hdr">
+                <h2>
+                    Item
+                </h2>
+            </div>
+            <div class="panel-container">
+                <!-- jquery validation -->
+                <div class="panel-content">
+                    <!-- form start -->
+                    <form method="post" action="create" autocomplete="off">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="exampleInputPassword1">Name</label>
+                                        <input type="text" asp-for="Name" class="form-control">
+                                        <span asp-validation-for="Name" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="exampleInputEmail1">Description</label>
+                                        <input type="text" asp-for="Description" class="form-control">
+                                        <span asp-validation-for="Description" class="text-danger"></span>
+
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="exampleInputEmail1">Quantity</label>
+                                        <input type="text" asp-for="Quantity" class="form-control">
+                                        <span asp-validation-for="Quantity" class="text-danger"></span>
+
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-group">
+                                        <label for="exampleInputEmail1">Price</label>
+                                        <input type="text" asp-for="Price" class="form-control">
+                                        <span asp-validation-for="Price" class="text-danger"></span>
+
+                                    </div>
+                                </div>
+                            </div>
+                                <div class="col-md-4">
+                                    <div class="form-group pt-5">
+                                        
+                                    </div>
+                                </div>
+                            
+                        </div>
+                        <!-- /.card-body -->
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </div>
+                    </form>
+                </div>
+                <!-- /.card -->
+            </div>
+            <!--/.col (left) -->
+            <!-- right column -->
+            <div class="col-md-4">
+            </div>
+            <!--/.col (right) -->
+        </div>
+        <!-- /.row -->
+    </div><!-- /.container-fluid -->
+</div>
+@section Scripts{
+    <script type="text/javascript">
+    
+        
+    </script>
+}

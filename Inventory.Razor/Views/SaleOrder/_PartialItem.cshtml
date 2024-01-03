@@ -1,0 +1,181 @@
+﻿@model SaleOrderItemRequest;
+@{
+    var itemList = (IList<ItemResponse>)ViewBag.ItemId;
+    var selectedId = ViewBag.selectedId;
+    var serviceList = ViewBag.LocalDeliveryServices;
+}
+<tr class="sale-order-item-row">
+   
+    <td class="col-sm-2 p-sm">
+        <select class="form-control select2 itemId item-added" autofocus onchange="itemChange(this);"  asp-for="ItemId">
+            <option value="" data-price="0">Select</option>
+            @foreach (ItemResponse itm in itemList)
+            {
+                if (itm.Id == selectedId)
+                {
+                    <option value="@itm.Id" selected data-quantity="@itm.Quantity"  data-name="@itm.Name" data-price="@itm.Price"  >
+                        @itm.Name
+                    </option>
+                }
+                else
+                {
+                    <option value="@itm.Id" data-quantity="@itm.Quantity"  data-name="@itm.Name" data-price="@itm.Price"  >
+                        @itm.Name
+                    </option>
+                }
+
+            }
+        </select>
+        <span asp-validation-for="ItemId" class="text-danger"></span>
+    </td>
+    <td class="col-sm-2 p-sm">
+        <input  asp-for="Price" class="form-control" />
+        <span asp-validation-for="Price" class="text-danger"></span>
+    </td>
+    <td class="col-sm-1 p-sm">
+        <input asp-for="Quantity" value="dadas"  class="form-control" required onchange="quantityChange(this)" />
+        <span id="spQuantity"  class="text-danger hide">Quanity should be greater than 0</span>
+
+    </td>
+    
+    <td class="col-sm-2 p-sm">
+        @* <span class="btn btn-success" onclick="addNewItem(this);" title="@ViewsLocalizer["AddNewItem"]">
+            <i class="fa fa-plus"></i>
+        </span> *@
+        <span class="btn btn-danger remove-item" id="removeItem"  onclick="removeItem(this);" title="RemoveItem">
+            <i class="fa fa-minus"></i>
+        </span>
+    </td>
+</tr>
+<script type="text/javascript">
+    $(document).ready(function (){
+        $("input[name*='__Invariant']").hide();
+    });
+
+    console.log('item created...' + $('#tblSaleOrder tr').length);
+    $(".itemId").each(function (index) {
+
+        var val = $(this)
+    });
+
+    addRemoveMinus();
+    function addRemoveMinus() {
+        debugger
+        if ($('#tblSaleOrder tr').length == 2) { //1st Row
+            {
+                debugger
+                currentId = "";// this.parentElement.parentElement.childNodes[1].childNodes[1].value
+                if (currentId == "") {
+                    $(ref).attr("disabled", true);
+                }
+                else {
+                    $(ref).attr("disabled", false);
+                }
+                $(ref).attr("disabled", false);
+                $(".remove-item").hide();
+            }
+                        
+        } 
+        else if ($('#tblSaleOrder tr').length > 2) { //after 1st Row
+            debugger
+            $(".remove-item").each(function (index) {
+                debugger
+                currentId = this.parentElement.parentElement.childNodes[1].childNodes[1].value
+                if (currentId == "") {
+                    $(this).hide();
+                }
+                else {
+                    $(this).show();
+                }
+                $(this).attr("disabled",true)
+            }
+            );
+        }
+    }
+    $(function () {
+        $('.select2').select2();
+    });
+    var ref;
+    
+    function itemChange(ths){
+       
+        debugger;
+        if ($('#tblSaleOrder tr').length == 2) {
+           
+            usedItems = [];
+            itemId = $(ths).find('option:selected').val();
+            const index = usedItems.indexOf(itemId);
+            if (index != -1) {
+                usedItems.splice(index, 1);
+                
+            }
+            usedItems.push(itemId);
+        }
+       
+        if ($('#tblSaleOrder tr').length > 2) { //1st Row
+            debugger
+            $("tr.sale-order-item-row").each(function (index) {
+                var test = $(this);
+                $(this).show();
+            });
+            
+        }
+        else {
+           
+            debugger
+            $("tr.sale-order-item-row").each(function (index) {
+                var test = $(this);
+                $(this).show();
+            });
+        }
+        
+        ref = ths; //used for quanitity check
+        Lastref=ths
+        itemId = $(ths).find('option:selected').val();
+        //var currentMinusButton = ths.parentElement.parentElement.childNodes[13].childNodes[1];
+        var currentMinusButton = ths.parentElement.parentElement.childNodes[7].childNodes[1];
+        //to hide minus button when no item selected in select
+        if ($(".sale-order-item-row").length > 1) {
+            if (itemId == "" ) {//when select is empty
+                // hide minus button
+                $(currentMinusButton).hide();
+            }
+            else {//show minus button
+                $(currentMinusButton).show();
+            }
+        }
+        debugger;
+     
+        var selectedRow = $(ths).closest("tr.sale-order-item-row");
+        $(selectedRow).find("#Price").val($(ths).find('option:selected').attr('data-price'));
+        $(selectedRow).find("#SKU").val($(ths).find('option:selected').attr('data-sku'));
+        //$(selectedRow).find("#Quantity").val("");
+        itemId = $(ths).find('option:selected').val();
+        const index = usedItems.indexOf(itemId);
+        if (index != -1){
+            usedItems.splice(index, 1);
+            
+        }
+        usedItems.push(itemId);
+        if (itemId == "")
+            {
+            $("#btnAddNewItem").attr("disabled", true)
+        }
+        else {
+            $("#btnAddNewItem").attr("disabled", false)
+        }
+         }
+   
+    function quantityChange(ths) {
+        var inputValue = ths.value;
+        if (parseInt(inputValue) > 0) {
+            $(ths.parentElement.childNodes[4]).addClass("hide");
+        }
+        var qty = $(ths.parentElement.parentElement.childNodes[1].childNodes[1]).find('option:selected').attr('data-quantity')
+        if (parseInt(inputValue) > parseInt(qty)) {
+            COMMON.Alert('QuantityTitle', 'QuantityMessage' + " " + 'AvailableQuantity' + ": " + qty);
+            ths.value = 0;
+        }
+     
+    }
+</script>

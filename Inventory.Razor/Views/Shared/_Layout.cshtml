@@ -1,0 +1,238 @@
+﻿@using Microsoft.Extensions.Configuration
+@using Microsoft.AspNetCore.Builder
+@using Microsoft.Extensions.Options
+@inject IConfiguration Configuration
+
+@{
+   var kendoVersion = "2022.2.621";//Configuration["KendoVersion"];
+
+
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@ViewData["Title"] - Inventory</title>
+
+    <meta name="description" content="">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, user-scalable=no, minimal-ui">
+    <!-- Call App Mode on ios devices -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <!-- Remove Tap Highlight on Windows Phone IE -->
+    <meta name="msapplication-tap-highlight" content="no">
+    <link rel="icon" type="image/png" sizes="32x32" href="~/images/favicon/favicon.ico">
+    
+
+        <environment names="Development,Staging,Production">
+        
+        
+            <link rel="stylesheet" media="screen, print" href="~/css/vendors.bundle.css">
+            <link rel="stylesheet" media="screen, print" href="~/css/app.bundle.css">
+            <link rel="stylesheet" media="screen, print" href="~/css/skins/skin-master.css">
+            <link rel="stylesheet" media="screen, print" href="~/css/fa-brands.css">
+            <link rel="stylesheet" media="screen, print" href="~/css/datagrid/datatables/datatables.bundle.css">
+            <link rel="stylesheet" href="~/lib/font-awesome/css/font-awesome.css" />
+            <link rel="stylesheet" media="screen, print" href="~/css/notifications/sweetalert2/sweetalert2.bundle.css">
+            <link rel="stylesheet" href="~/lib/sweetalert2/dist/sweetalert2.min.css" />
+            <link rel="stylesheet" href="~/css/app.css" />
+        
+        <link rel="stylesheet" href="~/css/materialdesignicons.css" />
+        <link rel="stylesheet" href="~/css/shipper-custom.css" />
+        
+        <link href="~/css/Spinner.css" rel="stylesheet" />
+        <link href="~/css/new-theme-style.css" rel="stylesheet" />
+
+        <link href="https://kendo.cdn.telerik.com/@kendoVersion/styles/kendo.common-material.min.css" rel="stylesheet" type="text/css" />
+        <link href="https://kendo.cdn.telerik.com/@kendoVersion/styles/kendo.mobile.all.min.css" rel="stylesheet" type="text/css" />
+        <link href="https://kendo.cdn.telerik.com/@kendoVersion/styles/kendo.material.min.css" rel="stylesheet" type="text/css" />
+        <link href="~/lib/select2/select2.min.css" rel="stylesheet" />
+        
+        <script src="~/lib/kendo/2022.2.621/jquery.min.js"></script>
+
+        <!-- Scripts -->
+        <script src="~/lib/jquery/dist/jquery.min.js"></script>
+        <script src="~/lib/jquery-ui/jquery-ui.js"></script>
+        <script src="~/lib/kendo/2022.2.621/jszip.min.js"></script>
+        <script src="~/lib/kendo/2022.2.621/kendo.all.min.js"></script>
+        <script src="~/lib/kendo/2022.2.621/kendo.aspnetmvc.min.js"></script>
+
+        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="~/lib/bootbox/bootbox.min.js"></script>
+        <script src="~/lib/sweetalert2/dist/sweetalert2.min.js"></script>
+        <script src="~/js/notify.min.js" asp-append-version="true"></script>
+        <script src="~/lib/moment/moment.min.js" asp-append-version="true"></script>
+
+        <script type="text/javascript">
+            $(document).ready(function () {
+
+                $(function () {
+                    $('[data-toggle="tooltip"]').kendoTooltip({
+                        animation: {
+                            open: {
+                                effects: "zoom",
+                                duration: 150
+                            }
+                        }
+                    })
+                })
+            });
+        </script>
+    </environment>
+    <partial name="_CommonScripts"></partial>
+    <style type="text/css">
+        .text-danger ul {
+            list-style: none;
+        }
+
+        #loadingDiv {
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: start;
+            width: 100%;
+            height: 100%;
+            top: 50px;
+            left: 0;
+            opacity: 0.9;
+            background-color: #fff;
+            z-index: 99;
+        }
+
+            #loadingDiv img {
+                z-index: 100;
+                opacity: 1;
+                top: 15%;
+                position: relative;
+                max-width: 251px;
+                max-height: 45px;
+                width: 100%;
+            }
+
+        /* .form-control{ 
+            height:40px !important
+        } */
+
+
+    </style>
+
+</head>
+<body>
+    <!-- BEGIN Page Wrapper -->
+    <div class="page-wrapper">
+        <div class="page-inner">
+            <!-- BEGIN Left Aside -->
+            <partial name="_LeftMenu" />
+            <!-- END Left Aside -->
+            <div class="page-content-wrapper">
+                <!-- BEGIN Page Header -->
+                <partial name="_TopHeader" />
+                <!-- END Page Header -->
+                <!-- BEGIN Page Content -->
+                <div id="loadingDiv">
+                    <img src="~/images/loading-s.gif" alt="Loading..." />
+                </div>
+                <main id="js-page-content" role="main" class="page-content content-p">
+                    @RenderBody()
+                </main>
+                <!-- this overlay is activated only when mobile menu is triggered -->
+                <div class="page-content-overlay" data-action="toggle" data-class="mobile-nav-on"></div> <!-- END Page Content -->
+                <!-- BEGIN Page Footer -->
+                <partial name="_Footer" />
+                <!-- END Page Footer -->
+               
+                <!-- END Color profile -->
+            </div>
+        </div>
+    </div>
+
+    <div class="overlay"></div>
+    <div class="spanner">
+        <div class="loader"></div>
+        <div class="pt-2 spinner-border text-primary"></div>
+    </div>
+    
+    <script src="~/lib/select2/select2.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/lib/jquery-ajax-unobtrusive/dist/jquery.unobtrusive-ajax.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            if ($(".select2").length > 0) {
+                $(".select2").select2();
+                $(".select2").on('change', function () {
+                    $(this).trigger('blur');
+                });
+            }
+            if ($('select').not('.k-grid select').length > 0) {
+                $('select').not('.k-grid select').select2();
+                $('select').not('.k-grid select').on('change', function () {
+                    $(this).trigger('blur');
+                });
+            }
+        });
+        function changeLanguage(lang) {
+            $('#hdnCurrentCulture').val(lang);
+            $('#' + lang + 'Lang').hide();
+            $('#selectLanguage').submit();
+        }
+        function ShowAlert(msg_title, msg_body, msg_type) {
+            var alertMsg = $('div[role="alert"]');
+            $(alertMsg).find('strong').html(msg_title);
+            $(alertMsg).find('p').html(msg_body);
+            $(alertMsg).removeAttr('class');
+            $(alertMsg).addClass('alert alert-' + msg_type);
+            $(alertMsg).show();
+        }
+        function loadSpinner() {
+            $("div.spanner").addClass("show");
+            $("div.overlay").addClass("show");
+        }
+
+        function hideSpinner() {
+            $("div.spanner").removeClass("show");
+            $("div.overlay").removeClass("show");
+        }
+        (function () {
+            window.onRequestEnd = function (e) {
+                if (e.response.Data && e.response.Data.length) {
+                    var data = e.response.Data;
+                    if (this.group().length && e.type == "read") {
+                        handleGroups(data);
+                    } else {
+                        loopRecords(data);
+                    }
+                }
+            }
+            function handleGroups(groups) {
+                for (var i = 0; i < groups.length; i++) {
+                    var gr = groups[i];
+                    offsetDateFields(gr); //handle the Key variable as well
+                    if (gr.HasSubgroups) {
+                        handleGroups(gr.Items)
+                    } else {
+                        loopRecords(gr.Items);
+                    }
+                }
+            }
+            function loopRecords(records) {
+                for (var i = 0; i < records.length; i++) {
+                    var record = records[i];
+                    offsetDateFields(record);
+                }
+            }
+            function offsetDateFields(obj) {
+                for (var name in obj) {
+                    var prop = obj[name];
+                    if (COMMON.IsValidDateTime(prop) && isNaN(prop)) {
+                        obj[name] = COMMON.ToLocalDateTime(prop);
+                    }
+                }
+            }
+        })();
+    </script>
+    @RenderSection("Scripts", required: false)
+</body>
+
+</html>

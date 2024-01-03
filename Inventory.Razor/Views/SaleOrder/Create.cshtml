@@ -1,0 +1,417 @@
+﻿@model CreateSaleOrderRequest;
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var controllerName = this.ViewContext.RouteData.Values["controller"].ToString();
+    ViewData["Title"] = "CreateSaleOrder";
+   
+}
+<div class="row">
+    <div class="col-lg-12 inline-flex ">
+        <div class="page-title">
+            <h1 class="title-h1">
+                SaleOrder
+            </h1>
+
+            <ul class="breadcrumb">
+                <li>
+                    <a asp-action="Index" asp-controller="Home"><span class="mdi mdi-home"></span></a>
+                </li>
+                <li>
+                    <span class="breadcrumb-item " style="float:left !important;"><a asp-action="Index" asp-controller="SaleOrder">SaleOrder</a></span><span class="mdi mdi-chevron-right pl-2" style="float:left !important;"></span>
+                </li>
+                <li>
+                    <span class="breadcrumb-item ">Create</span>
+                </li>
+            </ul>
+        </div>
+        <div class="header-btn-area flex-1 text-right">
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="white-box new-form-design">
+            <div class="panel-hdr">
+                <h2>
+                    SaleOrder
+                </h2>
+            </div>
+            <div class="panel-container">
+                <div class="panel-content">
+                    <!-- form start -->
+                    <form id="frmCreate" method="post" action="create" autocomplete="off">
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label for="exampleInputPassword1">Sale Order Date</label>
+                                        @(Html.Kendo().DatePicker()
+                                            .Name("SaleOrderDate")
+                                        .Value(DateTime.UtcNow)
+                                        .Format("yyyy-MM-dd")
+                                        .DateInput(true)
+                                        )
+                                        <span asp-validation-for="SaleOrderDate" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                
+                             </div>
+
+                             <div class="row">
+                                <div class="card-body">
+                                    <div class="row">
+                                   </div>
+                                </div>
+                             </div>
+                            <div class="row" style="margin-left:1178px">
+                                <td class="col-sm-2 p-sm">
+                                    <button  class="btn btn-success" id="btnAddNewItem"   onclick="addNewItem();" title="AddNewItem">
+                                        <i class="fa fa-plus"></i>
+                                    </button>
+                                    @* <span class="btn btn-danger" id="removeItem" hidden onclick="removeItem(this);" title="@ViewsLocalizer["RemoveItem"]">
+                                    <i class="fa fa-minus"></i>
+                                    </span> *@
+                                </td>
+                            </div>
+                          
+                             <div class="row">
+                               
+                                <div class="col-12 pt-3">
+                                    <table style="width:100%" id="tblSaleOrder" class="table table-bordered table-hover dataTable dtr-inline">
+                                        <thead>
+                                            <tr class="bg-primary text-white">
+                                                <th class="col-sm-2 p-sm">Name</th>
+                                                <th class="col-sm-2 p-sm">Price</th>
+                                                <th class="col-sm-1 p-sm">Quantity</th>
+                                                <th class="col-sm-1 p-sm">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="NewItems" >
+                                             @* <partial name="_PartialItem"  model="Model.Items" />  *@
+                                           
+                                        </tbody>
+                                    </table>
+                                </div>
+                             </div>
+                            
+                       
+                        </div>
+                        <!-- /.card-body -->
+                        <div class="card-footer">
+                            <button  type="button" onclick="ValidateAndSubmit();" class="btn btn-primary">Submit</button>
+                            @* <button type="submit"  class="btn btn-primary">Submit</button> *@
+                        </div>
+                    </form>
+                </div>
+                <!-- /.card -->
+            </div>
+            <!--/.col (left) -->
+            <!-- right column -->
+            <div class="col-md-4">
+            </div>
+            <!--/.col (right) -->
+        </div>
+        <!-- /.row -->
+    </div><!-- /.container-fluid -->
+</div>
+@section Scripts{
+    <script type="text/javascript">
+
+        var itemId = 0;
+        var customerCity;
+        var usedItems = [];
+        var Lastref;
+        $(function () {
+            $('.select2').select2();
+        });
+        $("#btnAddNewItem").attr("disabled",true)
+        function validateForm() {
+            var form = $("#frmCreate");
+            form.validate();
+            if (!form.valid()) {
+                $("#frmCreate").submit();
+                return false;
+            }
+            else {
+                return true
+            }
+        }
+        $(document).ready(function () { 
+            debugger
+            addNewItem();
+            if ($('#tblSaleOrder tr').length = 2) { //1st Row
+
+                $("#removeItem").hide();
+            }
+            else {
+                $("#removeItem").show();
+            }
+
+            var test = $("#tblSaleOrder").html();
+            var clone = $($.parseHTML($("#tblSaleOrder").html()));
+
+                 clone.find('[display]') //Target all disabled descendants
+                .removeAttr('display') //Remove disabled
+
+        })
+        function ValidateGrid() {
+            var valid = true;
+            $(".sale-order-item-row").each(function (index) {
+                if (($(this).find("#Quantity").val() == '' || $(this).find("#Quantity").val() <= 0)&&
+                    $(this).find("select#ItemId option:selected").val() != '') {
+                    $(this).find("#spQuantity").removeClass("hide");
+                    valid = false;
+                    if ($(this).find("select#DeliveryServiceId option:selected").val() == ''&&
+                        $(this).find("select#ItemId option:selected").val() != '') {
+
+                        $(this).find("#spService").removeClass("hide");
+                    }
+
+                }
+            });
+            return valid;
+        }
+        function addNewItem(currentId) {
+            debugger
+            
+            //disable previous row when new ro is added
+
+            if ($('#tblSaleOrder tr').length > 1) { //after 1st Row
+                
+                    var currentSelect = $('#tblSaleOrder tr')[$('#tblSaleOrder tr').length - 1].childNodes[1].childNodes[1];
+                    $(currentSelect).prop("disabled", true)
+                }
+
+            if ($(".sale-order-item-row").length == 1) { //1st Row
+                {
+                    debugger
+                    var currentId = $('#tblSaleOrder tr')[1].childNodes[1].childNodes[1].value;
+                   
+                    const index = usedItems.indexOf(currentId);
+                    if(index==-1)
+                    {
+                        usedItems.push(currentId);
+                        $($('#tblSaleOrder tr')[1].childNodes[1].childNodes[1]).prop("disabled", true)
+                    }
+                    //usedItems.splice(index, 1);
+                    $(Lastref).attr("disabled", true);
+                    $(".remove-item").hide();
+                }
+
+            }
+            if ($(".sale-order-item-row").length != 0) {
+                 $("#btnAddNewItem").attr("disabled", true);
+             }
+            var params = {
+                ItemIds:usedItems,
+                selectedItem:currentId
+            };
+            data1 = $('#tblSaleOrder tr').find('td:eq(0):input[type="text"]').html();
+            var htmlResponse = COMMON.doAjaxPostHTMLResponse('@Url.Action("AddNewItem", controllerName)', params);
+            if (htmlResponse !== null && htmlResponse !== undefined && COMMON.is.html(htmlResponse)) {
+                htmlResponse = htmlResponse.replace("hidden", "");
+                $('#NewItems').append(htmlResponse);
+            }
+            //////////////
+            const index = usedItems.indexOf(currentId);
+            if (index == -1 && currentId != undefined) {
+                usedItems.push(currentId);
+            }
+           
+            if ($(".sale-order-item-row").length == 1 && currentId != undefined) {
+                $("#btnAddNewItem").attr("disabled", false);
+            }
+        }
+        function removeItem(ths) {
+            debugger
+            console.log("remove item called")
+          
+            var item = {};
+            var currentRow = ths.parentElement.parentElement;
+            item.ItemId = $(currentRow).find("select#ItemId option:selected").val();
+            item.Name = $(currentRow).find("select#ItemId option:selected").attr('data-name');
+            item.Price = $(currentRow).find("input#Price").val();
+            item.Quantity = $(currentRow).find("input#Quantity").val();
+            item.SKU = $(currentRow).find("input#SKU").val();
+            item.Weight = $(currentRow).find("input#Weight").val();
+            const index = usedItems.indexOf(item.ItemId);
+            if (index != -1) {
+                usedItems.splice(index, 1);
+            }
+            var lastId = ($('#tblSaleOrder tr')[$('#tblSaleOrder tr').length - 1]).childNodes[1].childNodes[1].value;
+            var lastRow = $('#tblSaleOrder tr')[$('#tblSaleOrder tr').length - 1]
+
+            setTimeout(function () {
+                if ($(".sale-order-item-row").length == 1 && item.ItemId == "") {
+                    debugger
+                    $("#btnAddNewItem").attr("disabled", true)
+                   
+                }
+            },500)
+
+            if ($(".sale-order-item-row").length > 2) {
+
+                var lastRow=$('#tblSaleOrder tr')[$('#tblSaleOrder tr').length - 1]
+
+                var select = $($('#tblSaleOrder tr')[$('#tblSaleOrder tr').length - 1]).children('td:first').find('select')
+                $(select).append($('<option>', {
+                    value: item.ItemId,
+                    text: item.Name,
+                    'data-price': item.Price,
+                    'data-quantity': item.Quantity,
+                    'data-sku': item.SKU,
+                    'data-weight': item.Weight
+                 }));
+              
+            }
+
+           var currentId = ths.parentElement.parentElement.childNodes[1].childNodes[1].value;
+            if (ths.parentElement.parentElement.childNodes[1].childNodes[1].selectedIndex == 0)
+            {
+                $("#btnAddNewItem").attr("disabled", false)
+            }
+            else {
+                
+                $(".sale-order-item-row").each(function (index) {
+                    var secondId = this.childNodes[1].childNodes[1].value;
+
+                    if (currentId == secondId) {
+                        //do nothing
+                    }
+                    else {
+                        currentId = secondId;
+                        return false;
+                    }
+
+                });
+                    if ($(".sale-order-item-row").length == 1&&(currentId==undefined||currentId=="")) {
+                    console.log("set time out called, curretn Id:" + currentId)
+                        $("#btnAddNewItem").attr("disabled", true)
+                    }
+
+                    console.log("row length " + $(".sale-order-item-row").length)
+                console.log("row length " + $(".sale-order-item-row").length)
+                
+            }
+           
+            $(ths).closest("tr.sale-order-item-row").remove();
+            debugger
+
+            if ($(".sale-order-item-row").length > 1) {
+                //$("#removeItem").hide();
+                $(ths).closest("tr.sale-order-item-row").remove();
+
+            } else {
+                $(Lastref).attr("disabled", false);
+                $(".remove-item").hide();
+            }
+            if ($(".sale-order-item-row").length == 1 && currentId != undefined) {
+
+                $(".sale-order-item-row").each(function (index) {
+                    this.remove();
+
+                });
+
+                usedItems = [];
+                addNewItem(currentId);
+                var select = $($('#tblSaleOrder tr')[$('#tblSaleOrder tr').length - 1]).children('td:first').find('select')
+
+                var selectedRow = $(select).closest("tr.sale-order-item-row");
+                $(selectedRow).find("#Price").val($(select).find('option:selected').attr('data-price'));
+                $(selectedRow).find("#SKU").val($(select).find('option:selected').attr('data-sku'));
+                $(selectedRow).find("#Weight").val($(select).find('option:selected').attr('data-weight'));
+            }
+            if ($(".sale-order-item-row").length > 1 && currentId == undefined) {
+                debugger
+                var values = {}
+                var select = $(ths.parentElement.parentElement).find('select');
+                $.each(select.prop("options"), function (i, opt) {
+                    if (opt.value != "") {
+                        const index = usedItems.indexOf(opt.value);
+                        usedItems.splice(index, 1);
+                    }
+                })
+                $(ths).closest("tr.sale-order-item-row").remove();
+            }
+            else {
+            
+                $(".sale-order-item-row").each(function (index) {
+                    ItemId = $(this).find("select#ItemId option:selected").val();
+                    if (itemId == currentId) {
+
+                        var item = {};
+                        item.ItemId = $(this).find("select#ItemId option:selected").val();
+                        item.Name = $(this).find("select#ItemId option:selected").attr('data-name');
+                        item.Price = $(this).find("input#Price").val();
+                        item.Quantity = $(this).find("input#Quantity").val();
+                        item.SKU = $(this).find("input#SKU").val();
+                        item.Weight = $(this).find("input#Weight").val();
+
+                        item.DeliveryServiceId = $(this).find("select#DeliveryServiceId option:selected").val();
+                        var service = $(this).find("select#DeliveryServiceId option:selected").text();
+                        service = service.replace("\n", "").replace("\n", "").trim()
+                        item.DeliveryServicename = service;
+                    }
+                    if ($('#tblSaleOrder tr').length == index) {
+
+                    }
+                });
+            }
+        }
+       function ValidateAndSubmit(){
+           debugger;
+            //to validate there shuld be at least one item  
+           if (($('#tblSaleOrder tr').length == 2) && ($('#tblSaleOrder tr').find("select#ItemId option:selected").val() == '')){
+               return false;
+            }
+           
+
+           if (ValidateGrid()) {
+                var form = $("#frmCreate");
+                form.validate();
+                if (!form.valid()) {
+                    $("#frmCreate").submit();
+                    return false;
+                }
+           var _createSaleOrderRequest = {};
+           _createSaleOrderRequest.SaleOrderDate = $('#SaleOrderDate').val();
+
+          
+           var itemList = [];
+            $(".sale-order-item-row").each(function(index) {
+                debugger;
+               var item = {};
+               item.ItemId = $(this).find("select#ItemId option:selected").val();
+               item.Name = $(this).find("select#ItemId option:selected").attr('data-name');
+               item.Price = $(this).find("input#Price").val();
+               item.Quantity = $(this).find("input#Quantity").val();
+               itemList.push(item)
+           });
+           debugger
+            _createSaleOrderRequest.Items = itemList;
+          
+            var htmlResponse = null;
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("Create", "SaleOrder")',
+                    data: { createSaleOrderRequest:_createSaleOrderRequest },
+                    //dataType: 'json', // payload is json
+                    //contentType: 'application/json',
+                success: function (response) {
+                    console.log(response);
+                    if (response) {
+                            COMMON.AlertAndRedirect('Successful', 'Successfully Created', 'success', '/SaleOrder');
+
+                    }
+                    else {
+                        COMMON.Alert('PermissionDenied', 'Opereation not successfull');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    htmlResponse = null;
+                }
+            });
+            }
+       }
+    </script>
+}

@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="Views\PurchaseOrder\Create - Copy.cshtml" />
+    <Content Remove="Views\PurchaseOrder\Edit.cshtml" />
+    <Content Remove="Views\PurchaseOrder\_PartialItem - Copy.cshtml" />
+  </ItemGroup>
+	<ItemGroup>
+		
+		<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
+		
+		<PackageReference Include="Telerik.UI.for.AspNet.Core.Trial" Version="2023.1.425" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\Inventory.Services\Inventory.Services.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+	  <None Include="Views\SaleOrder\Index.cshtml" />
+	</ItemGroup>
+</Project>

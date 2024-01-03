@@ -1,0 +1,435 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var controllerName = this.ViewContext.RouteData.Values["controller"].ToString();
+    var hasEditDeleteRole = true;// User.IsInRole(AppConstants.USER_ROLES.NAME.NCC);
+    ViewData["Title"] = "SaleOrder";
+}
+<style>
+     #@(controllerName)_Grid tr td {
+        overflow: inherit;
+    }
+    .grid-icon-btn-group {
+        display: inline-flex;
+        display: inline-flex;
+        position: relative;
+        height: 14px;
+        top: -2px;
+    }
+    .k-toolbar {
+    justify-content: flex-end !important;
+}
+
+
+        .grid-icon-btn-group a {
+            width: 24px;
+            height: 24px;
+            background: #FFFFFF;
+            border: 1px solid #E6F2FF;
+            box-shadow: 0px 4px 7px #DFEBFF;
+            border-radius: 50px;
+            text-align: center;
+            margin-right: 7px;
+            position: relative;
+        }
+
+            .grid-icon-btn-group a .i-title {
+                display: none;
+                position: absolute;
+                left: 0;
+                z-index: 1;
+                background: #3F51B5;
+                color: #fff;
+                font-size: 9px;
+                border-radius: 2px;
+                padding: 1px 3px;
+                top: -7px;
+                white-space: nowrap;
+            }
+
+            .grid-icon-btn-group a.email-icon .i-title {
+                background: #FFCC3F;
+            }
+
+            .grid-icon-btn-group a.remove-icon .i-title {
+                background: #FA896B;
+            }
+
+            .grid-icon-btn-group a:hover .i-title {
+                display: block;
+            }
+
+            .grid-icon-btn-group a .mdi {
+                font-size: 20px;
+                margin-top: 5px;
+                display: block;
+            }
+
+                .grid-icon-btn-group a .mdi.mdi-printer-pos-outline {
+                    color: #3F51B5;
+                }
+
+                .grid-icon-btn-group a .mdi.mdi-face-agent {
+                    color: #3F51B5;
+                }
+
+                .grid-icon-btn-group a .mdi.mdi-email-arrow-right-outline {
+                    color: #FFCC3F;
+                    font-size: 15px;
+                    margin-top: 5px;
+                }
+
+                .grid-icon-btn-group a .mdi.mdi-close {
+                    color: #FA896B;
+                    font-size: 15px;
+                    margin-top: 5px;
+                }
+
+            .grid-icon-btn-group a input[type=submit] {
+                padding: 5px 0px;
+                background-color: transparent;
+                color: #3F51B5 !important;
+                width: 23px;
+                margin: 0 auto;
+                border-radius: 3px;
+                border: none;
+            }
+             .k-master-row{
+            height:46px;
+            }
+</style>
+
+
+<div class="row">
+    <div class="col-lg-12 inline-flex ">
+        <div class="page-title">
+            <h1 class="title-h1">
+                SaleOrder
+            </h1>
+            <ul class="breadcrumb">
+                <li>
+                    <a asp-action="Index" asp-controller="Home"><span class="mdi mdi-home"></span></a>
+                </li>
+                <li>
+                    <span class="breadcrumb-item "><span class="mdi mdi-chevron-right"></span></span>
+                </li>
+                <li>
+                    <span class="breadcrumb-item ">Sale Order</span>
+                </li>
+            </ul>
+        </div>
+        <div class="header-btn-area flex-1 text-right">
+            <a target="_blank" href='@Url.Action("Create", controllerName)' class="btn create-new-btn"><span class="mdi mdi-plus"></span>Create</a>
+        </div>
+    </div>
+</div>
+
+
+@* <div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-md-10">
+                <h1 class="m-0">SaleOrder</h1>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="#">Home</a></li>
+                    <li class="breadcrumb-item active">SaleOrder</li>
+                </ol>
+            </div><!-- /.col -->
+            <div class="col-md-2 text-right">
+                <a href="SaleOrder/Create" class="btn btn-primary" id="btnCreate"><i class="fa fa-plus" aria-hidden="true"></i>Create</a>
+            </div>
+        </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+</div> *@
+
+<div class="row">
+    <div class="col-lg-12">
+
+        <div class="row mb-20">
+            <div class="col-md-1 pr-0">
+                <span class="sort-by-title">FilterBy</span>
+            </div>
+            <div class="col-md-3 pl-0">
+                <div class="input-group from-to-date width-300" style="height:35px">
+                    <span class="mdi mdi-calendar-month-outline"></span>
+                    <input type="date" onclick="this.showPicker()" class="form-control" id="startDate" value="@DateTime.UtcNow.AddDays(-32).ToString("yyyy-MM-dd")">
+                    <span class="dash-d">-</span>
+                    <input type="date" onclick="this.showPicker()" class="form-control" id="endDate" value="@DateTime.UtcNow.ToString("yyyy-MM-dd")">
+                </div>
+            </div>
+            <div class="col-lg-3">
+                <input type="hidden" id="CustomerId" />
+                  <div class="input-gruop filter-input">
+                    @(
+                    Html.Kendo().AutoComplete()
+                    .Name("Customer")
+                    .DataTextField("Customer")
+                    .Filter("contains")
+                    .MinLength(3)
+                    .Placeholder("Customer")
+                            .Events(e =>
+                            {
+                                e.Select("onSelect");//.Filtering("onFiltering");
+                            })
+                            //.FooterTemplate("Total #: instance.dataSource.total() # customers found")
+                            .Template("<div style=\"padding-top:-10px !important;\"><label hidden>#: data.Id #</label><label>#: data.Name #</label></div><div><label>#: data.Mobile #</label></div>"
+                            + "<div><label>#: data.Address #</label></div>")
+                            .DataSource(source =>
+                            {
+                                source.Read(read =>
+                                {
+                                    read.Action("GetCustomerByName", "SaleOrder")
+                                .Data("onAdditionalData");
+                                })
+                                .ServerFiltering(true);
+                            })
+                            )
+                    </div>
+                @* <div class="input-group filter-select">
+                    <select class="custom-select" style="height:30px !important" id="CustomerId" asp-items="@ViewBag.CustomerId">
+                        <option value="">Select Customer</option>
+                    </select>
+                </div> *@
+            </div>
+            <div class="col-lg-2">
+                <div class="input-group filter-input">
+                    <input type="text" id="SaleOrderNumber"  class="form-control" placeholder='Enter Sale Order' />
+                </div>
+            </div>
+            <div class="col-md-2 pl-0">
+                <div class="text-right">
+                    <button type="button" class="new-small-btn ml-0" id="btnSearch">
+                        <span class="b-title">Search</span>
+                        <span class="mdi mdi-text-box-search-outline"></span>
+                    </button>
+                    <button type="reset" class="new-small-btn" id="resetSearch">
+                        <span class="b-title">Reset</span>
+                        <span class="mdi mdi-reload"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div id="dt-basic-example_wrapper" class="dataTables_wrapper dt-bootstrap4">
+        
+            <div class=" new-grid">
+                        @*<input type="hidden" id="UserHasEditDeleteRole" value="@hasEditDeleteRole.ToString()" />*@
+                            @(Html.Kendo().Grid<SaleOrderResponse>()
+                            .Name(controllerName + "Grid")
+                            .Columns(columns =>
+                            {
+                                columns.Bound(p => p.Id).Title("SR").Filterable(false).Width(50);
+                                columns.Bound(p => p.Id).Title("Action").Filterable(false).Visible(hasEditDeleteRole).Width(150);
+                                columns.Bound(p => p.SaleOrderNumber).Title("Sale Order Number").Filterable(false);
+                                columns.Bound(p => p.SaleOrderDate).Title("Sale Order Date").Format("{0:dd-MM-yyyy}").Filterable(false);
+                                columns.Bound(p => p.TotalItems).Title("Items").Filterable(false);
+                                columns.Bound(p => p.StatusId).Title("Status").Filterable(false).HtmlAttributes(new { @class = "text-center" }).HeaderHtmlAttributes(new { @class = "text-center" });
+                            })
+                            .Pageable()    
+                            .Navigatable()
+                            .Filterable()
+                            .Sortable()
+                            .ClientDetailTemplateId("sale_order_items")
+                            .Scrollable(d => d.Height("auto"))
+                            .Events(events => events.Sort("onSort").DataBound("onDataBound"))
+                            .DataSource(dataSource => dataSource
+                            .Ajax()
+                            .PageSize(10)
+                            .Events(events => events.Error("error_handler"))
+                                .Model(model =>
+                                {
+                                    model.Id(p => p.Id);
+                                    model.Field(p => p.Id).Editable(false);
+                                })
+                            .Read(action => action.Action("Read", controllerName).Data("filterGrid"))
+                                            )
+                            )
+                            
+                            <script id="sale_order_items" type="text/kendo-tmpl">
+                                <div><h5 class="text-uppercase">Items_@("#=SaleOrderNumber#")</h5></div>
+                                @(
+                                        Html.Kendo().Grid<SaleOrderItemRequest>().Name(controllerName + "_Items_#=Id#").Columns(columns =>
+                                        {
+                                            columns.Bound(o => o.Name).Title("Name").Width(150).Filterable(false);
+                                            columns.Bound(o => o.Price).Title("Price").Width(170).Filterable(false);
+                                            columns.Bound(o => o.Quantity).Title("Quantity").Width(150).Filterable(false);
+                                        })
+                                      
+                                        //.Filterable(filterable => filterable.Extra(false))
+                                        .Events(events => events.DataBound("onItemDataBound"))
+                                        .Scrollable(d => d.Height("auto"))
+                                        .HtmlAttributes(new
+                                        {
+                                            style = "width:100%;"
+                                        })
+                                            .DataSource(dataSource => dataSource.Ajax().PageSize(5).Read("ReadSaleOrderItems", controllerName, new
+                                        {
+                                            saleOrderId = "#=Id#"
+                                        }))
+                                        .Sortable().ToClientTemplate()
+                                    )
+                            </script>
+                    </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+@section Scripts{
+    <script type="text/javascript">
+
+        //$(document).ready(function () {
+        //    $('#formexportremittance').parent().css("float", "right");
+        //    $(".exportcsvRemittance").click(function () {
+        //        var grid = $("#(controllerName)Grid").data("kendoGrid");
+        //        var options = {
+        //            customerId:  $('#CustomerId').val(),
+        //            saleOrderNumber: $('#SaleOrderNumber').val(),
+        //            startDate: $('#startDate').val(),
+        //            endDate: $('#endDate').val()
+        //        }
+        //        $('#formexportremittance input[type="hidden"]').remove();
+        //        addOptionsToForm(options, $('#formexportremittance'), []);
+        //        $('#form input[type="hidden"]').remove();
+        //        addOptionsToForm(options, $('#form'), []);
+        //    });
+        //});
+
+        function onFiltering(e) {
+            if ($('#Customer').val()=="") {
+                e.preventDefault();
+                e.sender.dataSource.data([]);
+            }
+        }
+        function onAdditionalData(){
+            return {
+                name: $('#Customer').val()
+            }
+        }
+        function onSelect(e) {
+            debugger
+            $('#Customer').val(this.dataItem(e.item.index()).Name);
+            $('#CustomerId').val(this.dataItem(e.item.index()).Id);
+            // var awb = $('#AWB').val();
+            // if (awb != "") {
+            //     searchSkyBill();
+            // }
+        }
+
+
+
+
+       // var resp = 'TempData["resp"].ToString()';
+        // if (resp !== "") {
+        //     $.notify("ViewsHTMLLocalizer["SaleOrder"]" + "# " + resp + "ViewsHTMLLocalizer["CreatedSuccessful"]", { globalPosition: 'top center', className: 'success' });
+        // }
+        function filterGrid() {
+            debugger
+            return {
+                saleOrderNumber: $('#SaleOrderNumber').val(),
+                startDate: $('#startDate').val(),
+                endDate: $('#endDate').val()
+            };
+        }         
+
+        $("#resetSearch").click(function (e) {
+            debugger
+            $('#SaleOrderNumber').val("");
+             var myDate = new Date();
+            var stdate = myDate.getFullYear() + '-' + ("0" + (myDate.getMonth())).slice(-2) + '-' + ('0' + (myDate.getDate() - 1)).slice(-2);
+            $("#startDate").val(stdate);
+            var endate = myDate.getFullYear() + '-' + ("0" + (myDate.getMonth() + 1)).slice(-2) + '-' + ('0' + myDate.getDate()).slice(-2);
+            $("#endDate").val(endate);
+            $("#CustomerId").val("");
+            $("#Customer").val("");
+
+            COMMON.refreshKendoGrid('#@(controllerName)Grid');
+        });
+        $('#btnSearch').click(function (e) {
+            //console.log("hhi")
+            debugger
+            COMMON.refreshKendoGrid('#@(controllerName)Grid');
+        });
+        
+        function error_handler(e) {
+            if (e.errors) {
+                var message = "Errors:\n";
+                $.each(e.errors, function (key, value) {
+                    if ('errors' in value) {
+                        $.each(value.errors, function () {
+                            message += this + "\n";
+                        });
+                    }
+                });
+                alert(message);
+            }
+        }
+        // Prevent sorting when new record without Product Name is added
+        function onSort(e) {
+            var gridData = e.sender.dataSource.data()
+            gridData.forEach(function (element) {
+                if (!element.BaseCountryName) {
+                    e.preventDefault()
+                }
+            });
+        }
+
+       
+        function onDataBound(e) {
+            debugger
+            console.log("Grid data bound");
+            var grid = this;
+            e.preventDefault();
+            var gridRows = grid.tbody.find("tr");
+            var pageSize = this.dataSource.pageSize();
+            var currentPage = pageSize * (this.dataSource.page() - 1);
+            var serialNo = currentPage;
+            gridRows.each(function (e) {
+                var cell = $(this);
+                var item = grid.dataItem(cell.closest("tr"));
+                var lastNodeIndex = cell[0].childNodes.length;
+                cell[0].childNodes[1].innerHTML = ++serialNo;
+                var hasEditDeleteRole = $('#UserHasEditDeleteRole').val();
+                    //var html = "<span class='grid-icon-btn-group'><a class='' target='_blank' href='@Url.Action("Edit", controllerName)/" + item.Id + "'><span class='i-title'>Edit</span><i class='mdi mdi-pencil-outline'></i></a>";
+                  var  html = "<span class='grid-icon-btn-group'><a class='remove-icon' onclick='deleteItem(" + item.Id + ")'><span class='i-title'>Delete</span><i class='mdi mdi-trash-can-outline'></i></a></span>";
+                    cell[0].childNodes[2].innerHTML = html;
+                debugger;
+                 
+            });
+        }
+        function receivePurChaseOrder(purchaseOrderId) { 
+            debugger
+            var params = {
+                    purchaseOrderId: purchaseOrderId
+                };
+                var jsonResponse = COMMON.doAjaxPostWithJSONResponse('@Url.Action("ReceivePurChaseOrder", controllerName)', params);
+        
+        }
+        function onItemDataBound(e) {
+            var grid = this;
+            e.preventDefault();
+            var gridRows = grid.tbody.find("tr");
+            var i = 1;
+            gridRows.each(function (e) {
+                var cell = $(this);
+                debugger
+                var item = grid.dataItem(cell.closest("tr"));
+                if (!(item.AWB == ""||item.AWB ==undefined||item.AWB ==null)){
+                    cell[0].childNodes[1].innerHTML = "<a class='small-link-btn' target='_blank' href='@Url.Content("~/Tracking/Detail?awb=")" + item.AWB + "'style='text-align:right;text-decoration:none !important;'  value='TrackShipment'>" + item.AWB + "</a>";
+                }
+                    cell[0].childNodes[0].innerHTML = "<a class='small-link-btn'>" + i + "</a>";
+                i++;
+
+            });
+        }
+        function deleteItem(id) {
+            debugger
+            if (id !== null && id !== undefined && id > 0) {
+                var params = { id: id };
+                COMMON.confirmAlert("", '@Url.Action("Delete", controllerName)', params, '@(controllerName)Grid');
+            }
+        }
+    </script>
+}
